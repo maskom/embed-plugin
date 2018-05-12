@@ -23,8 +23,8 @@ function load_admin_scripts(){
 }
 function enqueue_admin_scripts(){
     // Isn't it nice to use dependencies and the already registered core js files?
-    wp_enqueue_style( 'admin-css-bootstrap', plugins_url('/assets/bootstrap.min.css', __FILE__), array(), null, 'all' );
-  //  wp_enqueue_script( 'admin-init', plugins_url('/lib/js/admin.init.js', __FILE__) , array('jquery'), null, true );
+    wp_enqueue_style( 'admin-css-bootstrap', plugins_url('/assets/css/bootstrap.min.css', __FILE__), array(), null, 'all' );
+    wp_enqueue_script( 'admin-js', plugins_url('/assets/js/scripts.js', __FILE__) , array('jquery'), null, true );
 }
 function embed_url() { ?>
     <div class="wrap-page mt-3 mb-3">
@@ -34,7 +34,7 @@ function embed_url() { ?>
                 <div class="form-row align-items-center">
                     <div class="col-sm-11 my-1">
                         <label class="sr-only" for="urlLink">Url/Link</label>
-                        <input type="url" class="form-control" id="urlLink" placeholder="Paste your http:// link here">
+                        <input type="url" class="form-control" id="urlLink" name="urlLink" placeholder="Paste your http:// link here">
                     </div>
 
                     <div class="col-auto my-1">
@@ -49,41 +49,41 @@ function embed_url() { ?>
                 <div class="form-row align-items-center">
                     <div class="form-group col-sm-12 my-1">
                         <label class="sr-only" for="title">Title</label>
-                        <input type="text" class="form-control" id="title" placeholder="Title">
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Title">
                     </div>
                     <div class="form-group col-sm-12 my-1">
                         <label class="sr-only" for="url">Url</label>
-                        <input type="text" class="form-control" id="url" placeholder="Url">
+                        <input type="text" class="form-control" id="url" name="url" placeholder="Url">
                     </div>
                 </div>
                 <div class="form-row align-items-center">
                     <div class="form-group col-sm-3 my-1">
                         <label class="sr-only" for="icon">icon</label>
-                        <input type="text" class="form-control" id="icon" placeholder="Icon">
+                        <input type="text" class="form-control" id="icon" name="icon" placeholder="Icon">
                     </div>
                     <div class="form-group col-sm-3 my-1">
                         <label class="sr-only" for="site">Site</label>
-                        <input type="text" class="form-control" id="site" placeholder="Site">
+                        <input type="text" class="form-control" id="site" name="site" placeholder="Site">
                     </div>
                     <div class="form-group col-sm-3 my-1">
                         <label class="sr-only" for="author">Author</label>
-                        <input type="text" class="form-control" id="author" placeholder="Author">
+                        <input type="text" class="form-control" id="author" name="author" placeholder="Author">
                     </div>
                     <div class="form-group col-sm-3 my-1">
                         <label class="sr-only" for="date">Date</label>
-                        <input type="text" class="form-control" id="date" placeholder="Date">
+                        <input type="text" class="form-control" id="date" name="date" placeholder="Date">
                     </div>
                 </div>
                 <div class="form-row align-items-center mt-4">
                     <div class="form-group col-sm-12 my-1">
                         <label class="sr-only" for="desription">Desription</label>
-                        <textarea  class="form-control" id="desription" placeholder="Desription" rows="4"></textarea>
+                        <textarea  class="form-control" id="desription" name="description" placeholder="Desription" rows="4"></textarea>
                     </div>
                 </div>
                 <div class="form-row align-items-center mt-4">
                     <div class="form-group col-sm-12 my-1">
                         <label class="sr-only" for="thumbnail">Thumbnail Url</label>
-                        <input type="url" class="form-control" id="thumbnail" placeholder="Thumbnail Url">
+                        <input type="url" class="form-control" id="thumbnail" name="thumbnail" placeholder="Thumbnail Url">
                     </div>
                     <div class="col-md-6 mt-3 my-1">
                         <img data-src="holder.js/100px250" class="img-fluid" alt="100%x250" style="height: 250px; width: 100%; display: block;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%221151%22%20height%3D%22250%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201151%20250%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_1634eddaaa2%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A58pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_1634eddaaa2%22%3E%3Crect%20width%3D%221151%22%20height%3D%22250%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22408.515625%22%20y%3D%22150.8%22%3E1151x250%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" data-holder-rendered="true">
@@ -92,13 +92,18 @@ function embed_url() { ?>
                 <div class="form-row align-items-center mt-4">
                     <div class="form-group col-sm-12 my-1">
                         <label class="sr-only" for="keywords">Keywords</label>
-                        <input type="text" class="form-control" id="keywords" placeholder="Keywords">
+                        <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords">
+                    </div>
+                </div>
+                <div class="form-row align-items-center mt-4 d-none">
+                    <div class="form-group col-sm-12 my-1">
+                        <label class="sr-only" for="htmlEmbed">Html Embed</label>
+                        <textarea  class="form-control" id="htmlEmbed" name="htmlEmbed" placeholder="Html Embed" rows="4"></textarea>
                     </div>
                 </div>
                 <div class="form-row align-items-center mt-4">
-                    <div class="form-group col-sm-12 my-1">
-                        <label class="sr-only" for="htmlEmbed">Html Embed</label>
-                        <textarea  class="form-control" id="htmlEmbed" placeholder="Html Embed" rows="4"></textarea>
+                    <div class="col-md-12">
+                        <div class="html"></div>
                     </div>
                 </div>
                 <div class="form-row align-items-center mt-4">
