@@ -25,27 +25,27 @@ function enqueue_admin_scripts(){
     // Isn't it nice to use dependencies and the already registered core js files?
     wp_enqueue_style( 'admin-css-bootstrap', plugins_url('/assets/css/bootstrap.min.css', __FILE__), array(), null, 'all' );
     wp_enqueue_script( 'admin-js', plugins_url('/assets/js/scripts.js', __FILE__) , array('jquery'), null, true );
+    wp_localize_script( 'pva-js', 'pva_params', array( 'pva_ajax_url' => admin_url( 'admin-ajax.php' ) ) );
+    wp_enqueue_script( 'pva-js' );
 }
 function embed_url() { ?>
     <div class="wrap-page mt-3 mb-3">
         <div class="container">
-            <h1>Embed Url</h1>
+            <h1><?php _e('Emded url', 'embed') ?></h1>
             <form class="mt-4 mb-4" id="embedUrl">
                 <div class="form-row align-items-center">
                     <div class="col-sm-11 my-1">
                         <label class="sr-only" for="urlLink">Url/Link</label>
                         <input type="url" class="form-control" id="urlLink" name="urlLink" placeholder="Paste your http:// link here">
                     </div>
-
                     <div class="col-auto my-1">
                         <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                 </div>
             </form>
             <hr>
-
-            <h3>Output</h3>
-            <form class="mt-4 mb-4" id="outputEmbed">
+            <form class="mt-4 mb-4" id="outputEmbed" action="" method="post">
+                <h3><?php _e('Output', 'embed') ?></h3>
                 <div class="form-row align-items-center">
                     <div class="form-group col-sm-12 my-1">
                         <label class="sr-only" for="title">Title</label>
@@ -85,9 +85,6 @@ function embed_url() { ?>
                         <label class="sr-only" for="thumbnail">Thumbnail Url</label>
                         <input type="url" class="form-control" id="thumbnail" name="thumbnail" placeholder="Thumbnail Url">
                     </div>
-                    <div class="col-md-6 mt-3 my-1">
-                        <img data-src="holder.js/100px250" class="img-fluid" alt="100%x250" style="height: 250px; width: 100%; display: block;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%221151%22%20height%3D%22250%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201151%20250%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_1634eddaaa2%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A58pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_1634eddaaa2%22%3E%3Crect%20width%3D%221151%22%20height%3D%22250%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22408.515625%22%20y%3D%22150.8%22%3E1151x250%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" data-holder-rendered="true">
-                    </div>
                 </div>
                 <div class="form-row align-items-center mt-4">
                     <div class="form-group col-sm-12 my-1">
@@ -95,14 +92,14 @@ function embed_url() { ?>
                         <input type="text" class="form-control" id="keywords" name="keywords" placeholder="Keywords">
                     </div>
                 </div>
-                <div class="form-row align-items-center mt-4 d-none">
+                <div class="form-row align-items-center mt-4">
                     <div class="form-group col-sm-12 my-1">
                         <label class="sr-only" for="htmlEmbed">Html Embed</label>
                         <textarea  class="form-control" id="htmlEmbed" name="htmlEmbed" placeholder="Html Embed" rows="4"></textarea>
                     </div>
                 </div>
                 <div class="form-row align-items-center mt-4">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <div class="html"></div>
                     </div>
                 </div>
@@ -110,8 +107,17 @@ function embed_url() { ?>
                     <div class="form-group col-sm-4 my-1">
                         <label class="sr-only" for="postType">Post Type</label>
                         <select id="postType" class="form-control">
-                            <option selected>Choose...</option>
-                            <option>...</option>
+                        <?php
+                        $args = array(
+                            'public'   => true,
+                            '_builtin' => true
+                        );
+                        $output = 'names'; // names or objects, note names is the default
+                        foreach ( get_post_types($args, $output) as $post_type ) {
+                            ?>
+                            <option value="<?php echo  $post_type ;?>"><?php echo  $post_type ;?></option>
+                        <?php }
+                        ?>
                         </select>
                     </div>
                     <div class="form-group col-sm-4 my-1">
@@ -124,3 +130,21 @@ function embed_url() { ?>
 
 
 <?php }
+
+function pva_create() {
+    $post_title = $_POST['title'];
+
+    // Create post object
+    $new_pva_post = array(
+        'post_type'     => 'post',
+        'post_title'    => $post_title,
+        'post_status'   => 'publish',
+        'post_author'   => 1,
+    );
+
+    // Insert the post into the database
+    wp_insert_post( $new_pva_post );
+    exit();
+}
+
+add_action('wp_ajax_pva_create','pva_create');
