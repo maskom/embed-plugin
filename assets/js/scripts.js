@@ -3,12 +3,10 @@
  */
 
 jQuery( document ).ready(function($) {
+    var frm = $('#submitUrl');
 
-    var frm = $('#embedUrl');
-    var frmPost = $('#outputEmbed');
-    //$('#outputEmbed').hide();
-    frm.submit(function (e) {
-
+   // $('#detail-box').hide();
+    frm.click(function (e) {
         e.preventDefault();
 
         var formData = {
@@ -24,10 +22,11 @@ jQuery( document ).ready(function($) {
             encode          : true,
             success: function (data) {
                 console.log('Submission was successful.');
-                //console.log(data['links']['thumbnail'][0]['href']);
+                //console.log(data);
                 $('.html').html(data['html']);
-                $('#outputEmbed').show();
+                $('#detail-box').show();
                 $('input[name=title]').val(data['meta']['title']);
+                $('input[name=post_title]').val(data['meta']['title']);
                 $('input[name=url]').val(data['url']);
                 $('input[name=icon]').val(data['links']['icon'][0]['href']);
                 $('input[name=site]').val(data['meta']['site']);
@@ -37,6 +36,7 @@ jQuery( document ).ready(function($) {
                 $('input[name=thumbnail]').val(data['links']['thumbnail'][0]['href']);
                 $('input[name=keywords]').val(data['meta']['keywords']);
                 $('textarea[name=htmlEmbed]').val(data['html']);
+                $('textarea[name=content]').text(data['html']);
 
             },
             error: function (data) {
@@ -44,34 +44,10 @@ jQuery( document ).ready(function($) {
                 console.log(data);
             },
         });
+
+
     });
-    // output
-    frmPost.submit(function (e) {
-        e.preventDefault();
 
-        var pva_ajax_url = pva_params.pva_ajax_url;
 
-        $.ajax({
-            type: 'POST',
-            url: pva_ajax_url,
-            data: {
-                action: 'embed_create',
-                //post_title: returnNewPostTitle()
-            },
-            beforeSend: function ()
-            {
-                console.log('sending');
-            },
-            success: function(data)
-            {
-                console.log('yay');
-            },
-            error: function()
-            {
-                console.log('nay');
-
-            }
-        })
-    })
 
 });
