@@ -10,20 +10,71 @@ License:     GPL2 etc
 License URI: http://link to your plugin license
 */
 
-add_action('admin_menu', 'embed_plugin_setup_menu');
+add_action( 'admin_init', 'embedUrl_register_settings' );
+function embedUrl_register_settings() {
+    //add_option( 'iframelyApiKey', 'Iframely APi Key');
+    register_setting( 'embedUrl_options_page', 'iframelyApiKey', 'embedUrl_callback' );
+}
 
-function embed_plugin_setup_menu() {
-    $my_page = add_menu_page( 'Embed Url Page', 'Embed URL', 'manage_options', 'embed', 'embed_url' );
-    add_action( 'load-' . $my_page, 'load_admin_scripts' );
+add_action('admin_menu', 'embedUrl_register_options_page');
+function embedUrl_register_options_page() {
+    add_options_page('Iframely APi Key', 'Embed Iframely ', 'manage_options', 'embed-iframely', 'embedUrl_options_page');
+}
+
+function embedUrl_options_page()
+{
+    ?>
+    <div>
+        <h2>Embed Iframely Setting</h2>
+        <form method="post" action="options.php">
+            <?php settings_fields( 'embedUrl_options_page' ); ?>
+            <h3>Iframely Api Key</h3>
+            <p>Get the APi key in <a href="https://iframely.com/profile" target="_blank">here</a></p>
+            <table>
+                <tr valign="top">
+                    <th scope="row"><label for="iframelyApiKey">Api Key</label></th>
+                    <td><input type="text" id="iframelyApiKey" name="iframelyApiKey" value="<?php echo get_option('iframelyApiKey'); ?>" /></td>
+                </tr>
+            </table>
+            <?php  submit_button(); ?>
+        </form>
+    </div>
+    <?php
 }
 
 add_action( 'admin_enqueue_scripts', 'enqueue_admin_style_sheet' );
 function enqueue_admin_style_sheet() {
-    wp_enqueue_script( 'admin-js', plugins_url('/assets/js/scripts.js', __FILE__) , array('jquery'), null, true );
+    wp_enqueue_script( 'embed-js', plugins_url('/assets/js/scripts.js', __FILE__) , array('jquery'), null, true );
+
+    /*
+     * Making PHP Variables Available to Your JS
+     * https://pippinsplugins.com/making-php-variables-available-to-your-js/
+    */
+
+    wp_localize_script( 'embed-js', 'php_vars', array(
+            'iframelyApiKey' => get_option( 'iframelyApiKey' ),
+        )
+    );
 }
 
-add_action( 'add_meta_boxes', 'metabox_aff' );
-function metabox_aff() {
+/*
+ * add embed after content
+ * http://wpdevelopers.com/adding-content-before-and-after-the_content/
+ */
+
+function embed_before_after($content) {
+    $embed = get_post_meta( get_the_ID(), 'htmlEmbed', true );
+    $aftercontent = $embed;
+    $fullcontent =  $content . $aftercontent;
+
+    return $fullcontent;
+}
+add_filter('the_content', 'embed_before_after');
+
+//Meta Box
+
+add_action( 'add_meta_boxes', 'metabox_embed' );
+function metabox_embed() {
     add_meta_box(
         'embed_detail_box',
         'Embed output',
@@ -52,8 +103,10 @@ function embed_detail_box () {
     wp_nonce_field( 'embed_meta_box_nonce', 'meta_box_nonce' )
 
     ?>
+    <?php if ( get_option( 'iframelyApiKey' ) !== ''): ?>
     <input type="url" class="regular-text" id="urlLink" name="urlLink" placeholder="<?php esc_attr_e( 'Paste your http:// link here', 'EmbedUrl' ); ?>">
     <button type="button" class="button button-secondary button-large" id="submitUrl"><?php esc_attr_e( 'Embed', 'EmbedUrl' ); ?></button>
+    <div class="html" style="width: 50%"></div>
     <div id="detail-box">
         <br/><hr>
         <strong><h2><?php esc_attr_e( 'Detail:', 'EmbedUrl' ); ?></h2></strong>
@@ -88,7 +141,9 @@ function embed_detail_box () {
         <label for="htmlEmbed"><strong><?php esc_attr_e( 'Html Embed', 'EmbedUrl' ); ?></strong></label>
         <textarea  class="large-text" id="htmlEmbed" name="htmlEmbed"   placeholder="Html Embed" rows="4"><?php echo $htmlEmbed; ?></textarea>
     </div>
-
+    <?php else:?>
+        <p>Please input <a href="/options-general.php?page=embed-iframely">Iframely Api</a></p>
+    <?php endif;?>
 
     <style>
         #embed_detail_box input, #embed_detail_box textarea {
@@ -103,8 +158,8 @@ function embed_detail_box () {
     <?php
 }
 
-add_action( 'save_post', 'cd_meta_box_save' );
-function cd_meta_box_save( $post_id )
+add_action( 'save_post', 'meta_box_save' );
+function meta_box_save( $post_id )
 {
     // Bail if we're doing an auto save
     if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
@@ -145,6 +200,5 @@ function cd_meta_box_save( $post_id )
         update_post_meta( $post_id, 'keywords_embed', wp_kses( $_POST['keywords'], $allowed ) );
     if( isset( $_POST['htmlEmbed'] ) )
         update_post_meta( $post_id, 'htmlEmbed',  $_POST['htmlEmbed'] );
-
 
 }
