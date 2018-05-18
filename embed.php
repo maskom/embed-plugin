@@ -58,13 +58,25 @@ function enqueue_admin_style_sheet() {
 }
 
 /*
+ * add embed js on front page
+ */
+add_action( 'wp_head' , 'embedJs' );
+function embedJs() {
+    ?>
+    <script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>
+    <?php
+}
+
+/*
  * add embed after content
  * http://wpdevelopers.com/adding-content-before-and-after-the_content/
  */
 
 function embed_before_after($content) {
     $embed = get_post_meta( get_the_ID(), 'htmlEmbed', true );
-    $aftercontent = $embed;
+    $scripts = '<script async src="//cdn.iframe.ly/embed.js" charset="utf-8"></script>';
+    $trimmed = str_replace($scripts, '', $embed) ;
+    $aftercontent = $trimmed;
     $fullcontent =  $content . $aftercontent;
 
     return $fullcontent;
